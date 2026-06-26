@@ -65,7 +65,7 @@ jobs:
 
       - name: Install Android SDK components
         run: |
-          yes | sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "ndk;27.0.12077973" "cmake;3.22.1" 2>&1
+          echo y | sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "ndk;27.0.12077973" "cmake;3.22.1" 2>&1 || true
         shell: bash
 
       - name: Install dependencies
