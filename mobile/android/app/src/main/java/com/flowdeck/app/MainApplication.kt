@@ -1,4 +1,4 @@
-package com.anonymous.mobile
+package com.flowdeck.app
 
 import android.app.Application
 import android.content.res.Configuration
