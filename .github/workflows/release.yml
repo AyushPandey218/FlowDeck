@@ -16,30 +16,27 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
 
       - name: Install dependencies
         run: npm ci
         working-directory: desktop
 
       - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'FlowDeck ${{ github.ref_name }}'
-          releaseBody: |
-            ## FlowDeck ${{ github.ref_name }}
+        run: npm run tauri build
+        working-directory: desktop
 
-            ### Downloads
-            - **Windows**: `.exe` installer, `.msi` installer
-            - **Android**: `.apk` (see Mobile job artifacts)
-          releaseDraft: true
-          includeDebug: false
-          projectPath: desktop
+      - name: Upload EXE to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            desktop/src-tauri/target/release/*.exe
+            desktop/src-tauri/target/release/bundle/msi/*.msi
 
   mobile:
     name: Mobile (APK)
@@ -60,6 +57,11 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Configure git
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
 
       - name: Install dependencies
         run: npm ci
