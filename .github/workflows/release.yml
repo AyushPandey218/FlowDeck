@@ -84,10 +84,11 @@ jobs:
         working-directory: mobile
 
       - name: Prebuild for Android
-        run: npx expo prebuild --platform android --clean
+        run: npx expo prebuild --platform android
         env:
           EXPO_DEBUG: 1
           CI: true
+          NODE_DEBUG: child_process
         working-directory: mobile
 
       - name: Create local.properties
