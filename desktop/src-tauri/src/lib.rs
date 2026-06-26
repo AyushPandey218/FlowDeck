@@ -445,6 +445,47 @@ fn get_clipboard_sync_enabled(app_handle: AppHandle) -> Result<bool, String> {
 }
 
 #[tauri::command]
+fn add_firewall_rule() -> Result<String, String> {
+    #[cfg(target_os = "windows")]
+    {
+        use std::process::Command;
+
+        let rule_name = "FlowDeck Server (TCP 45667)";
+        let result = Command::new("netsh")
+            .args([
+                "advfirewall",
+                "firewall",
+                "add",
+                "rule",
+                &format!("name={}", rule_name),
+                "dir=in",
+                "action=allow",
+                "protocol=TCP",
+                "localport=45667",
+                "profile=any",
+                "enable=yes",
+            ])
+            .output()
+            .map_err(|e| format!("Failed to run netsh: {}", e))?;
+
+        let stdout = String::from_utf8_lossy(&result.stdout);
+        let stderr = String::from_utf8_lossy(&result.stderr);
+
+        if result.status.success() {
+            Ok(stdout.trim().to_string())
+        } else if stderr.contains("already exists") {
+            Ok("Firewall rule already exists.".to_string())
+        } else {
+            Err(stderr.trim().to_string())
+        }
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        Err("Firewall management is only supported on Windows.".to_string())
+    }
+}
+
+#[tauri::command]
 fn clipboard_write_text(text: String) -> Result<(), String> {
     let mut cb = arboard::Clipboard::new().map_err(|e| e.to_string())?;
     cb.set_text(text).map_err(|e| e.to_string())
@@ -665,6 +706,57 @@ fn open_containing_folder(app_handle: AppHandle, transfer_id: String) -> Result<
     }
 }
 
+/// Attempts to add a Windows Firewall inbound rule for the FlowDeck WebSocket server port.
+/// This allows the phone to discover and connect to the desktop over the LAN.
+/// Requires admin privileges; silently ignores failures (logged to console).
+fn ensure_firewall_rule() {
+    #[cfg(target_os = "windows")]
+    {
+        use std::process::Command;
+
+        let rule_name = "FlowDeck Server (TCP 45667)";
+        let result = Command::new("netsh")
+            .args([
+                "advfirewall",
+                "firewall",
+                "add",
+                "rule",
+                &format!("name={}", rule_name),
+                "dir=in",
+                "action=allow",
+                "protocol=TCP",
+                "localport=45667",
+                "profile=any",
+                "enable=yes",
+            ])
+            .output();
+
+        match result {
+            Ok(output) => {
+                let stdout = String::from_utf8_lossy(&output.stdout);
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                if output.status.success() {
+                    println!("[FIREWALL] Rule added or already exists: {}", stdout.trim());
+                } else {
+                    // Rule may already exist (netsh returns error if duplicate), that's fine
+                    if stderr.contains("already exists") {
+                        println!("[FIREWALL] Rule already exists, skipping.");
+                    } else {
+                        eprintln!("[FIREWALL] Failed to add rule (may need admin): {}", stderr.trim());
+                    }
+                }
+            }
+            Err(e) => {
+                eprintln!("[FIREWALL] Could not run netsh: {}", e);
+            }
+        }
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        // No-op on non-Windows platforms
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let manager = Arc::new(connection_manager::ConnectionManager::new());
@@ -840,6 +932,9 @@ pub fn run() {
                 }
             });
 
+            // Ensure Windows Firewall allows inbound connections on the WebSocket port
+            ensure_firewall_rule();
+
             // Spawn WebSocket Server (default loopback unless Allow LAN setting is active)
             let ws_host = if allow_lan { "0.0.0.0" } else { "127.0.0.1" };
             let ws_port = 45667;
@@ -945,6 +1040,7 @@ pub fn run() {
             get_active_transfer,
             open_downloads_folder,
             open_containing_folder,
+            add_firewall_rule,
             app_discovery::get_installed_applications,
             app_discovery::refresh_installed_applications,
             app_discovery::set_run_on_startup,

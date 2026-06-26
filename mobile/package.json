@@ -17,6 +17,7 @@
     "expo-file-system": "^56.0.8",
     "expo-haptics": "~56.0.3",
     "expo-sharing": "^56.0.18",
+    "expo-splash-screen": "~56.0.10",
     "expo-status-bar": "~56.0.4",
     "fbjs": "^3.0.5",
     "js-sha256": "^0.11.1",
