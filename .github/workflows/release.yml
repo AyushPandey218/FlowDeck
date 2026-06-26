@@ -70,10 +70,24 @@ jobs:
         run: npm ci
         working-directory: mobile
 
+      - name: Debug git
+        run: |
+          echo "=== GIT STATUS ==="
+          git status || echo "git status failed"
+          echo "=== GIT REV-PARSE ==="
+          git rev-parse HEAD || echo "rev-parse failed"
+          echo "=== GIT SYMBOLIC-REF ==="
+          git symbolic-ref HEAD 2>&1 || echo "symbolic-ref failed"
+          echo "=== GIT LOG ==="
+          git log --oneline -1 || echo "log failed"
+        shell: bash
+        working-directory: mobile
+
       - name: Prebuild for Android
         run: npx expo prebuild --platform android --clean
         env:
           EXPO_DEBUG: 1
+          CI: true
         working-directory: mobile
 
       - name: Create local.properties
