@@ -5,7 +5,6 @@ shared/node_modules/
 desktop/dist/
 desktop/src-tauri/target/
 desktop/src-tauri/test_metadata/
-mobile/android/
 mobile/ios/
 .expo/
 *.log

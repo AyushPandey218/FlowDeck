@@ -43,8 +43,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          set-safe-directory: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -62,16 +60,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-        working-directory: mobile
-
-      - name: Prebuild for Android
-        run: |
-          git config --global safe.directory '*'
-          npx expo prebuild --platform android --clean 2>&1
-        env:
-          EXPO_DEBUG: 1
-          CI: true
-        shell: bash
         working-directory: mobile
 
       - name: Create local.properties

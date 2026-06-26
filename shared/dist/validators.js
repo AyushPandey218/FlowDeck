@@ -44,6 +44,35 @@ export const SystemStatsSchema = z.object({
     networkDown: z.number().nonnegative(),
     uptime: z.number().nonnegative(),
 });
+// Schema for FILE_TRANSFER_REQUEST payloads
+export const FileTransferRequestSchema = z.object({
+    transferId: z.string().uuid(),
+    fileName: z.string().min(1),
+    fileSize: z.number().int().nonnegative(),
+    mimeType: z.string(),
+    fileHash: z.string().min(64).max(64),
+    direction: z.enum(['desktop_to_mobile', 'mobile_to_desktop']),
+    transferToken: z.string().optional(),
+});
+// Schema for FILE_TRANSFER_ACCEPT payloads
+export const FileTransferAcceptSchema = z.object({
+    transferId: z.string().uuid(),
+    port: z.number().int().nonnegative(),
+    hostIp: z.string(),
+    transferToken: z.string(),
+});
+// Schema for FILE_TRANSFER_PROGRESS payloads
+export const FileTransferProgressSchema = z.object({
+    transferId: z.string().uuid(),
+    bytesTransferred: z.number().int().nonnegative(),
+    totalBytes: z.number().int().nonnegative(),
+    percentage: z.number().min(0).max(100),
+});
+// Schema for simple FILE_TRANSFER cancellations, completions, and rejections
+export const FileTransferSimpleSchema = z.object({
+    transferId: z.string().uuid(),
+    reason: z.string().optional(),
+});
 // Generic validator that checks type and validates corresponding payload
 export const WSMessageEnvelopeSchema = z.object({
     type: z.enum([
@@ -58,6 +87,12 @@ export const WSMessageEnvelopeSchema = z.object({
         'PAIR_RESPONSE',
         'LAYOUT_SYNC',
         'ACTIONS_SYNC',
+        'FILE_TRANSFER_REQUEST',
+        'FILE_TRANSFER_ACCEPT',
+        'FILE_TRANSFER_REJECT',
+        'FILE_TRANSFER_PROGRESS',
+        'FILE_TRANSFER_COMPLETE',
+        'FILE_TRANSFER_CANCEL',
     ]),
     payload: z.any(),
     timestamp: z.number().nonnegative(),
@@ -85,6 +120,20 @@ export function validateWSMessage(data) {
             break;
         case 'SYSTEM_STATS':
             payloadResult = SystemStatsSchema.safeParse(payload);
+            break;
+        case 'FILE_TRANSFER_REQUEST':
+            payloadResult = FileTransferRequestSchema.safeParse(payload);
+            break;
+        case 'FILE_TRANSFER_ACCEPT':
+            payloadResult = FileTransferAcceptSchema.safeParse(payload);
+            break;
+        case 'FILE_TRANSFER_PROGRESS':
+            payloadResult = FileTransferProgressSchema.safeParse(payload);
+            break;
+        case 'FILE_TRANSFER_REJECT':
+        case 'FILE_TRANSFER_COMPLETE':
+        case 'FILE_TRANSFER_CANCEL':
+            payloadResult = FileTransferSimpleSchema.safeParse(payload);
             break;
         case 'PING':
         case 'PONG':

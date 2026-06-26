@@ -1,4 +1,4 @@
-export type ActionType = 'OPEN_APP' | 'OPEN_URL' | 'VOLUME_UP' | 'VOLUME_DOWN' | 'TOGGLE_MUTE' | 'LOCK_PC';
+export type ActionType = 'OPEN_APP' | 'OPEN_URL' | 'VOLUME_UP' | 'VOLUME_DOWN' | 'TOGGLE_MUTE' | 'LOCK_PC' | 'HIDE_ALL_WINDOWS' | 'CLOSE_ALL_WINDOWS' | 'SWITCH_DESKTOP';
 export interface Action {
     id: string;
     categoryId: string;
@@ -22,13 +22,15 @@ export interface Page {
     categories: Category[];
 }
 export interface SystemStats {
+    telemetryVersion: number;
     cpu: number;
     ram: number;
-    gpu: number;
+    gpu: number | null;
     disk: number;
     networkUp: number;
     networkDown: number;
     uptime: number;
+    latencyMs: number;
 }
 export interface TrustedDevice {
     deviceId: string;
