@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "desktop",
+  "productName": "FlowDeck",
   "version": "0.1.0",
   "identifier": "com.flowdeck.app",
   "build": {
