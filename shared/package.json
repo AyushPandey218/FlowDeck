@@ -1,0 +1,11 @@
+{
+  "name": "@flowdeck/shared",
+  "version": "1.0.0",
+  "description": "Shared constants, models, and validations for Flow Deck",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "private": true,
+  "dependencies": {
+    "zod": "^3.22.4"
+  }
+}

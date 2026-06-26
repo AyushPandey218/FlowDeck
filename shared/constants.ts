@@ -1,0 +1,23 @@
+export const NETWORK = {
+  DEFAULT_PORT: 45667,
+  HEARTBEAT_INTERVAL_MS: 5000,
+  DISCONNECT_THRESHOLD_MS: 15000,
+  RECONNECT_INTERVAL_MS: 3000,
+  PROTOCOL_VERSION: 1,
+};
+
+export const TELEMETRY = {
+  DEFAULT_METRICS_INTERVAL_MS: 1500,
+};
+
+export const LIMITS = {
+  MAX_PAGES: 10,
+  MAX_CATEGORIES_PER_PAGE: 12,
+  MAX_ACTIONS_PER_CATEGORY: 24,
+  MAX_SCRIPT_LENGTH_BYTES: 65536, // 64KB PowerShell or batch scripts limits
+  MAX_ICON_SIZE_BYTES: 16384, // 16KB limit for Base64 icon assets
+};
+
+export const ACTION_SCHEMES = {
+  QR_URI_PREFIX: 'flowdeck://pair',
+};

@@ -1,0 +1,14 @@
+{
+  "name": "flowdeck-monorepo",
+  "private": true,
+  "scripts": {
+    "desktop": "cd desktop && npm run tauri dev",
+    "desktop:build": "cd desktop && npm run build",
+    "mobile": "cd mobile && npm run start",
+    "shared:build": "npx tsc --project shared/tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "typescript": "^6.0.3"
+  }
+}
